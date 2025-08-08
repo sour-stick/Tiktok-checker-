@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TikTok Restriction Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #ff0050;
+        }
+        .card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            background: #ff0050;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>TikTok Restriction Checker</h1>
+    <div class="card">
+        <input type="text" id="videoUrl" placeholder="Paste TikTok video URL here" />
+        <button onclick="checkVideo()">Check</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        async function checkVideo() {
+            const url = document.getElementById("videoUrl").value.trim();
+            const resultBox = document.getElementById("result");
+
+            if (!url) {
+                resultBox.innerHTML = "❌ Please enter a TikTok URL.";
+                return;
+            }
+
+            try {
+                resultBox.innerHTML = "⏳ Checking...";
+                const res = await fetch(url);
+                const html = await res.text();
+
+                const hasDownload = /"downloadAddr":\s*"https?:\/\//.test(html);
+                const hasPlay = /"playAddr":\s*"https?:\/\//.test(html);
+
+                if (hasDownload && hasPlay) {
+                    resultBox.innerHTML = "✅ This video can be downloaded and re-uploaded.";
+                } else if (!hasDownload && hasPlay) {
+                    resultBox.innerHTML = "⚠️ Can watch but not download.";
+                } else {
+                    resultBox.innerHTML = "❌ This video is restricted.";
+                }
+            } catch (err) {
+                resultBox.innerHTML = "❌ Error fetching video. Try another link.";
+            }
+        }
+    </script>
+</body>
+</html>
